@@ -2,7 +2,7 @@
   "id": "eventreplay",
   "name": "eventreplay",
   "description": "Event replayer for Secoura Server.",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "provides": [
     {
       "type": "source",
