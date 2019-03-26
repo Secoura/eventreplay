@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
-	"regexp"
-	"strings"
 	"time"
 
 	"github.com/secoura/jodaTime"
@@ -18,7 +16,7 @@ func randomTime(start, end time.Time) time.Time {
 	return time.Unix(newTime, 0)
 }
 
-func ProcessEvent(ev string, tokenRegex *regexp.Regexp, replacement, earliestTime, latestTime string) string {
+func ProcessEvent(replacement interface{}, earliestTime, latestTime string) string {
 	now := time.Now()
 	earliest, err := getRelativeTime(earliestTime, now)
 	if err != nil {
@@ -32,7 +30,7 @@ func ProcessEvent(ev string, tokenRegex *regexp.Regexp, replacement, earliestTim
 	t := randomTime(earliest, latest)
 	var replacementVal string
 
-	switch replacement {
+	switch replacement.(string) {
 	case "UNIX":
 		replacementVal = fmt.Sprintf("%d", t.Unix())
 	case "RFC3339", "ISO8601":
@@ -41,9 +39,5 @@ func ProcessEvent(ev string, tokenRegex *regexp.Regexp, replacement, earliestTim
 		replacementVal = jodaTime.Format(replacement, t)
 	}
 
-	matches := tokenRegex.FindStringSubmatch(ev)
-	if len(matches) > 0 {
-		return strings.Replace(ev, matches[len(matches) - 1], replacementVal, 1)
-	}
-	return ev
+	return replacementVal
 }

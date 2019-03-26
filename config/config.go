@@ -5,7 +5,7 @@ import "time"
 type Replacement struct {
 	Token       string `yaml:"token"`
 	Type        string `yaml:"type"`
-	Replacement string `yaml:"replacement"`
+	Replacement interface{} `yaml:"replacement"`
 }
 
 type SampleConfig struct {

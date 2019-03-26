@@ -17,9 +17,19 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
-	"github.com/secoura/eventreplay/output/console"
 	"github.com/secoura/eventreplay/processor/file"
+	"github.com/secoura/eventreplay/processor/float"
+	"github.com/secoura/eventreplay/processor/hex"
+	"github.com/secoura/eventreplay/processor/integer"
+	"github.com/secoura/eventreplay/processor/ipv4"
+	"github.com/secoura/eventreplay/processor/ipv6"
+	"github.com/secoura/eventreplay/processor/list"
+	"github.com/secoura/eventreplay/processor/mac"
+	processorString "github.com/secoura/eventreplay/processor/string"
 	"github.com/secoura/eventreplay/processor/timestamp"
+	"github.com/secoura/eventreplay/processor/uuid"
+
+	"github.com/secoura/eventreplay/output/console"
 
 	"github.com/secoura/eventreplay/config"
 )
@@ -168,15 +178,41 @@ func processEvent(ev string, cfg config.SampleConfig, repl config.Replacement) s
 		regexCache[repl.Token] = tokRegex
 	}
 
+	var replacementVal string
 	switch repl.Type {
+	case "guid":
+		replacementVal = uuid.ProcessEvent()
+	case "ipv4":
+		replacementVal = ipv4.ProcessEvent()
+	case "ipv6":
+		replacementVal = ipv6.ProcessEvent()
+	case "mac":
+		replacementVal = mac.ProcessEvent()
+	case "integer":
+		replacementVal = integer.ProcessEvent(repl.Replacement)
+	case "float":
+		replacementVal = float.ProcessEvent(repl.Replacement)
+	case "string":
+		replacementVal = processorString.ProcessEvent(repl.Replacement)
+	case "hex":
+		replacementVal = hex.ProcessEvent(repl.Replacement)
+	case "list":
+		replacementVal = list.ProcessEvent(repl.Replacement)
 	case "timestamp":
-		return timestamp.ProcessEvent(ev, tokRegex, repl.Replacement, cfg.EarliestTime, cfg.LatestTime)
+		replacementVal = timestamp.ProcessEvent(repl.Replacement, cfg.EarliestTime, cfg.LatestTime)
 	case "file":
-		return file.ProcessEvent(ev, tokRegex, repl.Replacement)
+		replacementVal = file.ProcessEvent(repl.Replacement)
+	case "static":
+		replacementVal = repl.Replacement.(string)
+	default:
+		log.Fatalf("unknown processor '%s'", repl.Type)
 	}
 
-	log.Fatalf("unknown processor '%s'", repl.Type)
-	return ""
+	matches := tokRegex.FindStringSubmatch(ev)
+	if len(matches) > 0 {
+		return strings.Replace(ev, matches[len(matches)-1], replacementVal, 1)
+	}
+	return ev
 }
 
 func outputEvent(ev string, cfg config.SampleConfig) {
