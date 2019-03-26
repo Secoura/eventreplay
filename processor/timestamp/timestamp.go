@@ -30,13 +30,13 @@ func ProcessEvent(replacement interface{}, earliestTime, latestTime string) stri
 	t := randomTime(earliest, latest)
 	var replacementVal string
 
-	switch replacement.(string) {
+	switch replacement {
 	case "UNIX":
 		replacementVal = fmt.Sprintf("%d", t.Unix())
 	case "RFC3339", "ISO8601":
 		replacementVal = t.Format(time.RFC3339)
 	default:
-		replacementVal = jodaTime.Format(replacement, t)
+		replacementVal = jodaTime.Format(replacement.(string), t)
 	}
 
 	return replacementVal
