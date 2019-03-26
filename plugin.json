@@ -2,7 +2,7 @@
   "id": "eventreplay",
   "name": "eventreplay",
   "description": "Event replayer for Secoura Server.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "provides": [
     {
       "type": "source",
@@ -14,7 +14,7 @@
             "arch": "x64"
           },
           "path": "./bin/eventreplay-linux-x64",
-          "args": ""
+          "args": ["-c", "%PARAMS_YAML_FILE%"]
         },
         {
           "match": {
@@ -22,7 +22,7 @@
             "arch": "x64"
           },
           "path": "./bin/eventreplay-macos-x64",
-          "args": ""
+          "args": ["-c", "%PARAMS_YAML_FILE%"]
         },
         {
           "match": {
@@ -30,9 +30,10 @@
             "arch": "x64"
           },
           "path": "./bin/eventreplay-windows-x64.exe",
-          "args": ""
+          "args": ["-c", "%PARAMS_YAML_FILE%"]
         }
       ],
+      "codec": "json",
       "source_name": "eventreplay",
       "line_breaker": "\n"
     }

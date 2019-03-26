@@ -49,10 +49,13 @@ func main() {
 	debug = flag.Bool("debug", false, "enable debugging mode")
 	flag.Parse()
 
-	if *configFile == "" {
+	if os.Getenv("PLUGIN_CONFIG") != "" {
 		if err = tryParseFromEnvVar(); err != nil {
-			printHelp()
+			printError(err)
 		}
+	}
+	if *configFile == "" {
+		printHelp()
 	} else {
 		if err = tryParseFromFile(*configFile); err != nil {
 			printError(err)
@@ -92,11 +95,7 @@ func tryParseFromFile(cfgFile string) error {
 }
 
 func tryParseFromEnvVar() error {
-	// Try load config from PLUGIN_CONFIG environment variable
 	pluginConf := os.Getenv("PLUGIN_CONFIG")
-	if pluginConf == "" {
-		return errors.New("PLUGIN_CONFIG not set")
-	}
 	if err := json.Unmarshal([]byte(pluginConf), &cfg); err != nil {
 		return errors.Errorf("failed to parse PLUGIN_CONFIG: %v", err)
 	}
