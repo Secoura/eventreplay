@@ -153,7 +153,7 @@ func runSampleLoop(sampleCfg config.SampleConfig) error {
 	}
 
 	// Create timer to loop
-	timer := time.NewTimer(sampleCfg.Interval)
+	timer := time.NewTimer(time.Duration(sampleCfg.Interval))
 	for {
 		select {
 		case <-timer.C:
@@ -163,7 +163,7 @@ func runSampleLoop(sampleCfg config.SampleConfig) error {
 					ev = processEvent(ev, sampleCfg, repl)
 				}
 				outputEvent(ev, sampleCfg)
-				timer.Reset(sampleCfg.Interval)
+				timer.Reset(time.Duration(sampleCfg.Interval))
 			}
 		}
 	}
@@ -210,7 +210,7 @@ func processEvent(ev string, cfg config.SampleConfig, repl config.Replacement) s
 
 	matches := tokRegex.FindStringSubmatch(ev)
 	if len(matches) > 0 {
-		return strings.Replace(ev, matches[len(matches)-1], replacementVal, 1)
+		return strings.Replace(ev, matches[len(matches)-1], replacementVal, -1)
 	}
 	return ev
 }

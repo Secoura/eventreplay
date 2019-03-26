@@ -3,9 +3,24 @@ package config
 import "time"
 
 type Replacement struct {
-	Token       string `yaml:"token"`
-	Type        string `yaml:"type"`
+	Token       string      `yaml:"token"`
+	Type        string      `yaml:"type"`
 	Replacement interface{} `yaml:"replacement"`
+}
+
+type duration time.Duration
+
+func (d *duration) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var s string
+	if err := unmarshal(&s); err != nil {
+		return err
+	}
+	t, err := time.ParseDuration(s)
+	if err != nil {
+		return err
+	}
+	*d = duration(t)
+	return nil
 }
 
 type SampleConfig struct {
@@ -16,7 +31,7 @@ type SampleConfig struct {
 	SpoolDir     string        `yaml:"spool_dir"`
 	Count        int           `yaml:"count"`
 	Delimiter    string        `yaml:"delimiter"`
-	Interval     time.Duration `yaml:"interval"`
+	Interval     duration      `yaml:"interval"`
 	EarliestTime string        `yaml:"earliest_time"`
 	LatestTime   string        `yaml:"latest_time"`
 	Replacements []Replacement `yaml:"replacements"`
@@ -44,5 +59,5 @@ var DefaultSampleConfig = SampleConfig{
 	Count:        -1,
 	EarliestTime: "now",
 	LatestTime:   "now",
-	Interval:     60 * time.Second,
+	Interval:     duration(60 * time.Second),
 }
